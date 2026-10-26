@@ -1,0 +1,79 @@
+name: outbox-pattern
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: outbox_pattern
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d outbox_pattern"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    restart: unless-stopped
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    volumes:
+      - mailpit-data:/data
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@outboxpattern.io
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Database__AutoMigrate: "true"
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=outbox_pattern;Username=postgres;Password=postgres
+      Outbox__PollingInterval: "00:00:01"
+      Outbox__BatchSize: "50"
+      Outbox__MaxAttempts: "5"
+      Outbox__RetryBaseDelay: "00:00:02"
+      Outbox__RetryMaxDelay: "00:01:00"
+      Smtp__Host: mailpit
+      Smtp__Port: "1025"
+      Smtp__FromAddress: noreply@outbox.local
+      Smtp__FromName: OutboxPattern
+      Smtp__EnableSsl: "false"
+      Smtp__Timeout: "00:00:30"
+    ports:
+      - "5080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+volumes:
+  postgres-data:
+  mailpit-data:
+  pgadmin-data:

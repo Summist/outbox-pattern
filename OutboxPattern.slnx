@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Dockerfile" />
+    <File Path="docker-compose.yml" />
+    <File Path="servers.json" />
+    <File Path=".dockerignore" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/OutboxPattern.Api/OutboxPattern.Api.csproj" />
+    <Project Path="src/OutboxPattern.Application/OutboxPattern.Application.csproj" />
+    <Project Path="src/OutboxPattern.Domain/OutboxPattern.Domain.csproj" />
+    <Project Path="src/OutboxPattern.Infrastructure/OutboxPattern.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OutboxPattern.IntegrationTests/OutboxPattern.IntegrationTests.csproj" />
+    <Project Path="tests/OutboxPattern.UnitTests/OutboxPattern.UnitTests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "OutboxPattern PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "outbox_pattern",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "disable",
+      "Comment": "Local PostgreSQL for OutboxPattern"
+    }
+  }
+}
